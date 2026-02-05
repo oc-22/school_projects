@@ -3,18 +3,19 @@
 Solution to the first homework assignment for the **IJC (C Programming)** course at FIT VUT.
 
 ## Overview
-The solution implements a bitset data structure using an `unsigned long` array with support for both static and dynamic allocation. The bitset can be compiled either using macros or inline functions, selected via the `-DUSE_INLINE` compiler option.
+This project implements a **bitset** data structure using an `unsigned long` array with support for both static and dynamic allocation. The bitset is used in the **Sieve of Eratosthenes** for efficient prime number computation. The generated primes are also used to decode a hidden message stored in a binary PPM (P6) image via LSB steganography.
 
-The bitset is used to implement the **Sieve of Eratosthenes** for efficient prime number computation. Generated primes are further used to decode a hidden message stored in a binary PPM (P6) image using LSB steganography.
+## Project Structure
+- `bitset.c` / `bitset.h` – bitset implementation  
+- `eratosthenes.c` / `eratosthenes.h` – Sieve of Eratosthenes  
+- `primes.c` – program to compute primes  
+- `ppm.c` / `ppm.h` – PPM image loading  
+- `steg-decode.c` – decode hidden message from PPM  
+- `error.c` / `error.h` – error handling utilities  
+- `du1-obrazek.ppm` – test image for steganography  
+- `Makefile` – build rules for all programs
 
-## Files
-- `bitset.h` – bitset implementation  
-- `eratosthenes.c` – Sieve of Eratosthenes  
-- `primes.c` – prime number computation  
-- `ppm.c/.h` – PPM image loading  
-- `steg-decode.c` – steganographic message decoding  
-- `error.c/.h` – error handling  
-- `Makefile` – build rules
-
-## Build
-make
+## Build & Run
+```bash
+make        # compile all programs
+make run    # compile and run
