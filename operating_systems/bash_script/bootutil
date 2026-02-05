@@ -1,0 +1,349 @@
+#!/bin/bash
+
+list(){
+    files="$DIR"/*.conf
+    while [[ "$#" -gt 0 ]]; do
+        case "$1" in
+            -f)
+                files=$(printf "$files" | sort)
+                shift
+                ;;
+            -s)
+                IFS=$'\n'
+                for file in $files; do
+                    checkKey=$(grep "sort-key" "$file")
+                    if [ $? -ne 0 ]; then
+                        echo "sort-key zzzz999" >> "$file"
+                    fi
+                done
+                unset IFS
+                files=$(grep "sort-key" "$DIR"/*.conf | sort -t: -k2 | cut -d: -f1)
+                shift
+                ;;
+            -t)
+                shift
+                files=$(awk -v arg="$1" '
+                    /^title / {
+                        title_line = substr($0, 7);
+                        if (title_line ~ arg)
+                            print FILENAME
+                    }
+                ' "$DIR"/*.conf)
+                shift
+                ;;
+            -k)
+                shift
+                files=$(awk -v arg="$1" '
+                    /^linux / {
+                        linux_line = substr($0, 7);
+                        if (linux_line ~ arg)
+                            print FILENAME
+                    }
+                ' "$DIR"/*.conf)
+                shift
+                ;;
+            *)
+                echo "Unknown switch"
+                exit 1
+                ;;
+        esac
+    done
+
+    IFS=$'\n'
+    if [ -z "$files" ]; then
+        exit 0
+    fi
+    for file in $files; do
+        title=$(grep "title" "$file" | cut -d " " -f2-)
+        version=$(grep "version" "$file" | cut -d " " -f2-)
+        linux=$(grep "linux" "$file" | cut -d " " -f2-)
+        echo "$title ($version, $linux)"
+    done
+    unset IFS
+}
+
+
+remove(){
+    files="$DIR"/*.conf
+    if [ -z "$files" ];then
+        echo "No matching files found"
+        exit 0
+    fi
+    files=$(awk -v arg="$1" '
+            /^title / {
+            title_line = substr($0, 7);
+            if (title_line ~ arg) {
+                print FILENAME
+            }
+        }' "$DIR"/*.conf)
+    if [ -z "$files" ]; then
+        echo "No matching files found"
+        exit 0
+    fi
+    IFS=$'\n'
+    for file in $files; do
+        echo "Removing files...$file"
+        rm "$file"
+    done
+    unset IFS
+}
+show_default(){
+    files="$DIR"/*.conf
+    if [ -z "$files" ]; then
+        echo "No matching files found"
+        exit 0
+    fi
+    file=$(awk '/^vutfit_default / {
+        if($2 == "y"){
+            print FILENAME
+        }
+    }' "$DIR"/*.conf)
+    if [ -n "$file" ]; then
+        if [ "$1" = "-f" ]; then
+            echo "$file"
+        else
+            if [ -n "$1" ]; then
+            exit 1
+            else
+                cat "$file"
+            fi
+        fi
+    else
+        echo "No default entry found"
+        exit 1
+    fi
+}
+make_default(){
+    files="$DIR"/*.conf
+    if [ -z "$files" ]; then
+        echo "No matching files found"
+        exit 0
+    fi
+    IFS=$'\n'
+    for file in $files; do
+        if [ "$file" = "$1" ]; then
+            check=$(grep "^vutfit_default " "$file")
+            if [ -n "$check" ]; then
+                awk -i inplace '{
+                    if(/^vutfit_default /){
+                        $2="y"
+                    }
+                    print
+                }' "$file"
+            else
+                echo "vutfit_default y">>"$file"
+            fi
+        else
+            check=$(grep "^vutfit_default " "$file")
+            if [ -n "$check" ];then
+                awk -i inplace '{
+                    if(/^vutfit_default /){
+                        $2="n"
+                    }
+                    print
+                }' "$file"
+            else
+                echo "vutfit_default n">>"$file"
+            fi
+        fi
+    done
+    unset IFS
+}
+
+duplicate(){
+
+    kernel=""
+    initramfs=""
+    title=""
+    destination=""
+    entry_file=""
+    add_values=()
+    remove_values=()
+    sequence=()
+    destination=""
+    makedefault=""
+
+    while [[ "$#" -gt 0 ]]; do
+        case "$1" in
+            -k)
+                shift
+                kernel="$1"
+                shift
+                ;;
+            -i)
+                shift
+                initramfs="$1"
+                shift
+                ;;
+            -t)
+                shift
+                title="$1"
+                shift
+                ;;
+            -d)
+                shift
+                destination="$1"
+                shift
+                ;;
+            -a|-r)
+                flag="$1"
+                shift
+                for val in $(echo "$1" | xargs -n1); do
+                    sequence+=("$flag:$val")
+                    if [ "$flag" = "-a" ]; then
+                        add_values+=("$val")
+                    else
+                        remove_values+=("$val")
+                    fi
+                done
+                shift
+                ;;
+            --make-default)
+                makedefault="true"
+                shift
+                ;;
+            -*)
+                echo "$1"
+                echo "Unknown switch"
+                shift
+                ;;
+            *)
+                if [ -z "$entry_file" ]; then
+                    entry_file="$1"
+                else
+                    echo "Unknown argument"
+                fi
+                shift
+        esac
+    done
+
+    if [ -z "$entry_file" ];then
+        entry_file=$(awk '/^vutfit_default /{
+            if($2=="y"){
+                print FILENAME
+            }
+                }' "$DIR"/*.conf)
+        if [ -z "$entry_file" ];then
+            exit 1
+        fi
+    else
+        if [ "$DIR" = "$(dirname "$entry_file")" ];then
+            entry_file="$entry_file"
+        else
+            exit 1
+        fi
+    fi
+
+
+    newfile=""
+    if [ -z "$destination" ];then
+        file_name=$(basename "$entry_file" .conf)
+        infix=$(date +%s)
+        newfile="$DIR/${file_name}${infix}.conf"
+        cat "$entry_file">"$newfile"
+        awk -i inplace '/^vutfit_default /{
+            $2="n"
+            NF=2
+        } {print}' "$newfile"
+    else
+        newfile="$destination"
+        cat "$entry_file">"$destination"
+    fi
+
+    #######################################
+    #-k
+    if [ -n "$kernel" ];then
+        awk -i inplace -v arg="$kernel" '/^linux /{
+            $2=arg
+            NF=2
+        } {print}' "$newfile"
+    fi
+    #############################################
+    #-t
+    if [ -n "$title" ];then
+        awk -i inplace -v arg="$title" '/^title /{
+            $2=arg
+            NF=2
+        } {print}' "$newfile"
+    fi
+    #################A################################################
+    #-i
+    if [ -n "$initramfs" ];then
+        awk -i inplace -v arg="$initramfs" '/^initrd /{
+            $2=arg
+            NF=2
+        } {print}' "$newfile"
+    fi
+    ################################################################
+    #--makedefault
+    if [ -n "$makedefault" ];then
+        make_default "$newfile"
+    fi
+    ########################################################
+    # -r|-a
+    for argument in "${sequence[@]}"; do
+        flag="${argument%%:*}"
+        value="${argument#*:}"
+
+        if [ "$flag" = "-a" ]; then
+            awk -i inplace -v arg="$value" '/^options /{
+                if($0~arg){
+                    $0=$0
+                }else{
+                    $0=$0" "arg
+                }
+            } {print}' "$newfile"
+        elif [ "$flag" = "-r" ]; then
+            awk -i inplace -v arg="$value" '/^options /{
+                if($0~arg){
+                    for(i=1;i<=NF;i++){
+                        if($i~arg){
+                            $i=""
+                        }
+                    }
+                }
+            } {print}' "$newfile"
+        fi
+    done
+
+}
+
+#ENTRY POINT
+DIR=/boot/loader/entries
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        list)
+            shift
+            list "$@"
+            ;;
+        remove)
+            shift
+            remove "$@"
+            ;;
+        -b)
+            shift
+            DIR="$1"
+            if [ ! -d "$DIR" ]; then
+                echo "Directory $DIR does not exist."
+                exit 0
+            fi
+            shift
+            ;;
+        show-default)
+            shift
+            show_default "$@"
+            ;;
+        make-default)
+            shift
+            make_default "$@"
+            ;;
+
+        duplicate)
+            shift
+            duplicate "$@"
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
