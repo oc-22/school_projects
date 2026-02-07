@@ -4,7 +4,6 @@ echo "=========================================="
 echo "   Running BOOMstep (Backend + Frontend)"
 echo "=========================================="
 
-# Funkcia na "upratanie" procesov po stlačení Ctrl+C
 cleanup() {
     if [ -n "$BACKEND_PID" ]; then kill $BACKEND_PID; fi
     if [ -n "$FRONTEND_PID" ]; then kill $FRONTEND_PID; fi
@@ -40,8 +39,8 @@ cd ..
 
 echo ""
 echo "ALL IS RUNNING"
-echo "👉 Backend PID: $BACKEND_PID"
-echo "👉 Frontend PID: $FRONTEND_PID"
+echo "Backend PID: $BACKEND_PID"
+echo "Frontend PID: $FRONTEND_PID"
 echo "Use ctrl+c to stop"
 
 wait
