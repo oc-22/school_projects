@@ -16,10 +16,10 @@ Each module is self‑contained and implements a classic data structure used in 
 This folder contains:
 
 - **btree.h** – public interface shared by both BST implementations  
-- **btree_iterative.c** – iterative binary search tree  
-- **btree_recursive.c** – recursive binary search tree  
-- **bst_helpers.c** – printing and traversal helpers  
-- **letter_count.c** – character frequency counter using the BST  
+- **btree_iter.c** – iterative binary search tree  
+- **btree_rec.c** – recursive binary search tree  
+- **btree.c** – printing and traversal helpers  
+- **exa.c** – character frequency counter using the BST  
 
 ##Binary Search Tree (BST)
 
