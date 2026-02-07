@@ -1,4 +1,4 @@
-Author: Ondrej Cagalinec (xcagalo00), Jan Kostečka (xkostej00)
+Author: Ondrej Cagalinec (xcagalo00)
 File: readme.txt
 Brief: Instructions used to start the environment and description of file structure along with ownership
 
