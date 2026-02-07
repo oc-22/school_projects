@@ -1,0 +1,25 @@
+/*
+* File: index.css
+* Author: Ondrej Cagalinec(xcagalo00)
+* Description: fallback css file for design
+*
+*/
+
+/* Initial setting for the page*/
+:root,
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+
+    /* Nastavte pozadie už tu, aby aj prípadné medzery boli tmavé */
+    background-color: #111827; /* gray-900 */
+    color: white;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+}
