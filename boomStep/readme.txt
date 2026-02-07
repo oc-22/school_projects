@@ -21,22 +21,6 @@ for both of us since the implementation was done in diffrent technologies.
 =============================================================================================
 =============================================================================================
 
-==============================================================================================
-=======================USE AND SETUP OF frontend_xkostej00====================================
-==============================================================================================
-The frontend part of the application is implemented using the React library and can be run
-locally using the Node.js environment. After cloning the repository, dependencies must first be
-installed in the root directory of the frontend part using the npm install command. The frontend
-can then be started with the npm run dev command, which launches a development server accessible
-in the browser (typically at http://localhost:5173/).
-
-The backend part of the application must be started separately in a second terminal. In the backend
-directory, the server can be launched using the go run cmd/minesweeper-api/main.go command.
-The frontend then communicates with the running backend via a REST API, assuming the appropriate
-backend address and port are configured in the API communication layer.
-=============================================================================================
-=============================================================================================
-
 boomStep_Svelte/
 ├── backend
 │   ├── cmd
@@ -91,41 +75,5 @@ boomStep_Svelte/
 │   ├── uno.config.js
 │   └── vite.config.js
 ================================================================================================================================
-========================ALL FILES WITHIN frontend_xkostej00 ARE THE PROJECT IMPLEMENTATION OF Jan Kostečka======================
-├── frontend_xkostej00
-│   ├── eslint.config.js
-│   ├── index.html
-│   ├── package.json
-│   ├── package-lock.json
-│   ├── postcss.config.js
-│   ├── public
-│   │   └── vite.svg
-│   ├── src
-│   │   ├── api <-------------API CALLS
-│   │   │   ├── client.ts
-│   │   │   └── mines.ts
-│   │   ├── App.css
-│   │   ├── App.tsx
-│   │   ├── assets
-│   │   │   └── react.svg
-        ================================COMPONENTS======================================
-│   │   ├── components
-│   │   │   ├── ConfirmModal.tsx
-│   │   │   ├── home_buttons.tsx
-│   │   │   ├── ScoresMulti.tsx
-│   │   │   └── ScoresSingle.tsx
-│   │   ├── index.css
-│   │   ├── main.tsx
-        ===============================MAIN PAGES======================================
-│   │   └── pages
-│   │       ├── Home.tsx
-│   │       ├── MultiPlayer.tsx
-│   │       └── SinglePlayer.tsx
-│   ├── tailwind.config.js
-│   ├── tsconfig.app.json
-│   ├── tsconfig.json
-│   ├── tsconfig.node.json
-│   └── vite.config.ts
-========================================================================================================================
 ├── readme.txt
 └── run_xcagalo00.sh
